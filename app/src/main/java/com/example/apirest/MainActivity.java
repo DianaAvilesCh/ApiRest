@@ -17,11 +17,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity{
     TextView txtUser;
     RequestQueue requestQueue;
-    String URL = "https://gorest.co.in/public/v1/users";
+    String URL = "https://api-uat.kushkipagos.com/transfer-subscriptions/v1/bankList";
     ArrayList<String> lstUser = new ArrayList<String> ();
 
     @Override
@@ -35,26 +37,28 @@ public class MainActivity extends AppCompatActivity{
 
     public void stringRequest(){
         txtUser = (TextView)findViewById(R.id.txtListUser);
-
         StringRequest request = new StringRequest(Request.Method.GET,
                 URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try{
-                            JSONObject object = new JSONObject(response);
-                            JSONArray JSONlista = object.getJSONArray("data");
+//                            JSONObject object = new JSONObject();
+//                            object.put("name",response);
+                            JSONArray JSONlista = new JSONArray(response);
+//                            JSONlista.put(object);
                             for(int i=0; i< JSONlista.length();i++){
                                 JSONObject user=  JSONlista.getJSONObject(i);
-                                lstUser.add("Nombre: "+user.getString("name")+ "\n"
-                                        + "Email: "+user.getString("email")+"\n"
-                                        + "Genero: "+user.getString("gender")+"\n"
-                                        + "Estado: "+user.getString("status")+"\n\n");
+                                lstUser.add("Codigo: "+user.getString("code")+ "\n"
+                                        + "Nombre: "+user.getString("name")+"\n\n"
+                                );
                             }
                             txtUser.setKeyListener(null);
                             txtUser.setText(lstUser.toString());
                         }catch (JSONException e) {
                             e.printStackTrace();
+                            txtUser.setKeyListener(null);
+                            txtUser.setText(e.toString());
                         }
                     }
                 },
@@ -64,7 +68,16 @@ public class MainActivity extends AppCompatActivity{
 
                     }
                 }
-        );
+        )
+        {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Public-Merchant-Id", "84e1d0de1fbf437e9779fd6a52a9ca18");
+                return params;
+            }
+        }
+        ;
         requestQueue.add(request);
     }
 }
